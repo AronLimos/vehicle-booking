@@ -4,3 +4,6 @@ AutoLocate is a web based application designed to help the struggle of schedulin
 ## Authors
 - Aron Limos 
 - John Berlyn Gerardo
+
+### Features
+
