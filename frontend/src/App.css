@@ -8,7 +8,6 @@
   background-color: blue;
   padding: 20px 30px;
   z-index: 1000;
-
 }
 
 .navbar-title {
@@ -19,8 +18,7 @@
 
 .navbar-links {
   display: flex;
-  gap: 20px;
-  /* Space between the sections */
+  gap: 20px; /* Space between the sections */
 }
 
 .nav-links {
@@ -36,8 +34,7 @@
 }
 
 .nav-links.active {
-  color: orange;
-  /* Highlight active link */
+  color: orange; /* Highlight active link */
   font-weight: bold;
 }
 
@@ -46,66 +43,45 @@
 @media (max-width: 576px) {
   .navbar-title {
     font-size: 30px;
-    position: sticky;
-    /* Smaller font size for very small screens */
+    position: sticky; /* Smaller font size for very small screens */
   }
 
   .nav-links {
-    font-size: 18px;
-    /* Smaller link font size */
+    font-size: 18px; /* Smaller link font size */
   }
 }
 
-
 /* Home section */
 #home {
-  height: 70vh;
-  /* Make the section take up the full viewport height */
-  background-image: url('/Users/aronlimos/Documents/GitHub/vehicle-booking/frontend/public/HomePage.png');
-  /* Replace with the path to your image */
-  background-size: cover;
-  /* Make the image cover the entire section */
-  background-position: center;
-  /* Center the image */
-  background-repeat: no-repeat;
-  /* Prevent the image from repeating */
+  height: 70vh; /* Make the section take up the full viewport height */
+  background-image: url('../public/HomePage.png'); /*  Adjusted path */
+  background-size: cover; /* Make the image cover the entire section */
+  background-position: center; /* Center the image */
+  background-repeat: no-repeat; /* Prevent the image from repeating */
   display: flex;
   justify-content: center;
   align-items: center;
-  color: white;
-  /* Optional: If you have text on top of the image */
-  text-align: center;
-  /* Optional: Center the text if any */
+  color: white; /* Optional: If you have text on top of the image */
+  text-align: center; /* Optional: Center the text if any */
 }
 
 #home h2 {
-  font-size: 5rem;
-  /* Optional: Adjust text size */
-  font-weight: bold;
-  /* Optional: Make the text bold */
+  font-size: 5rem; /* Optional: Adjust text size */
+  font-weight: bold; /* Optional: Make the text bold */
 }
 
-/* BBBBBBBB Bbbbbbbbbbbbbbbbbbbbbbb*/
+/* Search input */
 #myInput {
-  background-image: url('/Users/aronlimos/Documents/GitHub/vehicle-booking/frontend/public/icon.jpg');
-  /* Add a search icon to input */
-  background-size: 20px 20px;
-  /* Resize the icon */
-  background-position: 10px 12px;
-  /* Position the search icon */
-  background-repeat: no-repeat;
-  /* Do not repeat the icon image */
-  width: 100%;
-  /* Full-width */
-  font-size: 16px;
-  /* Increase font-size */
-  padding: 12px 20px 12px 40px;
-  /* Add some padding */
-  border: 1px solid #ddd;
-  /* Add a grey border */
+  background-image: url('../public/icon.jpg'); /* ✅ Adjusted path */
+  background-size: 20px 20px; /* Resize the icon */
+  background-position: 10px 12px; /* Position the search icon */
+  background-repeat: no-repeat; /* Do not repeat the icon image */
+  width: 100%; /* Full-width */
+  font-size: 16px; /* Increase font-size */
+  padding: 12px 20px 12px 40px; /* Add some padding */
+  border: 1px solid #ddd; /* Add a grey border */
   border-radius: 10px;
-  margin-bottom: 12px;
-  /* Add some space below the input */
+  margin-bottom: 12px; /* Add some space below the input */
 }
 
 /* Search Section Styling */
@@ -115,16 +91,7 @@
   text-align: center;
 }
 
-
-/* Search Section Styling */
-#search {
-  padding: 50px 20px;
-  background-color: #f4f4f4;
-  text-align: center;
-}
-
-
-/* Search Feature */
+/* Shop Container */
 .shop-container {
   display: flex;
   justify-content: center;
@@ -136,16 +103,12 @@
 
 .shop-card {
   background-color: white;
-  border-radius: 15px;
-  /* Rounded corners */
+  border-radius: 15px; /* Rounded corners */
   padding: 100px;
   width: 600px;
   box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
   align-items: center;
   transition: transform 0.3s ease;
-
-
-  /* 0 0 prevent cards from stretching */
 }
 
 .shop-card:hover {

@@ -1,5 +1,5 @@
 const express = require('express');
-const Review = require('../backend/models/Review');
+const Review = require('../models/Review');
 
 const router = express.Router();
 
