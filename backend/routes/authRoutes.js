@@ -9,25 +9,26 @@ router.post('/register', async (req, res) => {
     try {
         const { firstName, lastName, email, password, role } = req.body;
 
-        //  Ensure password is hashed before saving
+        // Hash the password before saving
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = new User({
             firstName,
             lastName,
             email,
-            password: hashedPassword, //  Always store the hashed password
+            password: hashedPassword, 
             role
         });
 
         await user.save();
         res.status(201).json({ message: "User registered successfully" });
     } catch (error) {
-        res.status(500).json({ message: "Error registering user" });
+        console.error("❌ Registration Error:", error);
+        res.status(500).json({ message: "Error registering user", error: error.message });
     }
 });
 
-// ✅ Fix: Ensure `userId` is Used in Token Instead of `id`
+
 router.post('/login', async (req, res) => {
     try {
         const { email, password } = req.body;
@@ -49,12 +50,12 @@ router.post('/login', async (req, res) => {
 
         console.log("🎉 Login successful!");
         
-        // ✅ Fix: Use `userId` instead of `id`
         const token = jwt.sign({ userId: user._id, role: user.role }, process.env.JWT_SECRET, { expiresIn: "1h" });
 
-        res.json({ token });
+         //Used for Debugging login roles//
+        res.json({ token, role: user.role }); 
     } catch (error) {
-        console.error(" Login error:", error);
+        console.error("❌ Login error:", error);
         res.status(500).json({ message: "Server error" });
     }
 });

@@ -1,5 +1,6 @@
 const express = require('express');
 const dotenv = require('dotenv');
+const cors = require('cors');
 const connectDB = require('./controller/db'); // MongoDB Connection
 
 dotenv.config();
@@ -7,6 +8,7 @@ connectDB();
 
 const app = express();
 app.use(express.json()); // Enable JSON request body parsing
+app.use(cors());
 
 // Register routes
 app.use('/api/auth', require('./routes/authRoutes'));
