@@ -1,5 +1,6 @@
 const express = require('express');
 const User = require('../models/User');
+const { verifyToken, authorizeRoles } = require('../middleware/authMiddleware');
 
 const router = express.Router();
 
@@ -18,6 +19,11 @@ router.post('/register', async (req, res) => {
 router.get('/', async (req, res) => {
     const users = await User.find();
     res.json(users);
+});
+
+// Admin-only route
+router.get('/admin-dashboard', verifyToken, authorizeRoles('admin'), (req, res) => {
+    res.json({ message: 'Welcome Admin' });
 });
 
 module.exports = router;
