@@ -5,7 +5,7 @@ AutoLocate is a web based application designed to help the struggle of schedulin
 - Aron Limos 
 - John Berlyn Gerardo
 
-## Milestone I (v1.0.0)
+## Milestone I 
 ### 🚀 New Features
 - Interactive Navigation Bar: A interactive navigation bar to navigate through the website.
 - Search Sector: View mechanic shops and search shops based on name
@@ -24,6 +24,14 @@ AutoLocate is a web based application designed to help the struggle of schedulin
 - Issues: Media query’s not suitable for mobile devices
 
 ## Milestone 2
+### 🚀 Registration
+- [Improvement 1]: MongoDb Data storage for Users, Admin, Mechanic Owner.
+- [Improvement 2]: Implemented Login/Register for Users, Admin, Mechanic Owner.
+- [Improvement 3]: Nav Bar Includes Login/Register and Logout
+
+### 📌 Notes
+- Issues: Feature Currenlty Not UI standards.
+
 ## Milestone 3
 
 
