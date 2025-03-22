@@ -1,41 +1,93 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
 
-const Register = () => {
-    const [formData, setFormData] = useState({ firstName: '', lastName: '', email: '', password: '', role: 'customer' });
-    const [error, setError] = useState('');
-    const navigate = useNavigate();
+function Register() {
+  const [formData, setFormData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    role: 'customer',      // default role
+    adminKey: '',
+    ownerKey: ''
+  });
 
-    const handleRegister = async (e) => {
-        e.preventDefault();
-        try {
-            await axios.post('http://localhost:5000/api/auth/register', formData);
-            navigate('/login'); // Redirect after successful registration
-        } catch (err) {
-            setError('Registration failed. Try again.');
-        }
-    };
+  const [message, setMessage] = useState('');
 
-    return (
-        <div>
-            <h2>Register</h2>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <form onSubmit={handleRegister}>
-                <input type="text" placeholder="First Name" value={formData.firstName} onChange={(e) => setFormData({ ...formData, firstName: e.target.value })} required />
-                <input type="text" placeholder="Last Name" value={formData.lastName} onChange={(e) => setFormData({ ...formData, lastName: e.target.value })} required />
-                <input type="email" placeholder="Email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} required />
-                <input type="password" placeholder="Password" value={formData.password} onChange={(e) => setFormData({ ...formData, password: e.target.value })} required />
-                <select value={formData.role} onChange={(e) => setFormData({ ...formData, role: e.target.value })}>
-                    <option value="customer">Customer</option>
-                    <option value="owner">Mechanic Owner</option>
-                    <option value="admin">Admin</option>
-                </select>
-                <button type="submit">Register</button>
-            </form>
-            <p>Already have an account? <a href="/login">Login</a></p>
-        </div>
-    );
-};
+  const handleChange = (e) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleRegister = async (e) => {
+    e.preventDefault();
+
+    try {
+      const payload = {
+        firstName: formData.firstName,
+        lastName: formData.lastName,
+        email: formData.email,
+        password: formData.password,
+        role: formData.role
+      };
+
+      //  Include secret key if needed
+      if (formData.role === 'admin') {
+        payload.adminKey = formData.adminKey;
+      } else if (formData.role === 'owner') {
+        payload.ownerKey = formData.ownerKey;
+      }
+
+      const res = await axios.post('http://localhost:5000/api/auth/register', payload);
+      setMessage('✅ Registration successful!');
+    } catch (error) {
+      console.error('❌ Registration Error:', error);
+      setMessage('❌ Registration failed. Please check your input or secret key.');
+    }
+  };
+
+  return (
+    <div className="container mt-5">
+      <h2>Register</h2>
+      {message && <p>{message}</p>}
+      <form onSubmit={handleRegister}>
+        <input type="text" name="firstName" placeholder="First Name" className="form-control mb-2" onChange={handleChange} required />
+        <input type="text" name="lastName" placeholder="Last Name" className="form-control mb-2" onChange={handleChange} required />
+        <input type="email" name="email" placeholder="Email" className="form-control mb-2" onChange={handleChange} required />
+        <input type="password" name="password" placeholder="Password" className="form-control mb-2" onChange={handleChange} required />
+
+        {/* Role Dropdown */}
+        <select name="role" className="form-control mb-3" onChange={handleChange} value={formData.role}>
+          <option value="customer">Customer</option>
+          <option value="owner">Owner</option>
+          <option value="admin">Admin</option>
+        </select>
+
+        {/* Conditional Admin/Owner Secret Key Input */}
+        {formData.role === 'admin' && (
+          <input
+            type="text"
+            name="adminKey"
+            placeholder="Admin Secret Key"
+            className="form-control mb-2"
+            onChange={handleChange}
+            required
+          />
+        )}
+        {formData.role === 'owner' && (
+          <input
+            type="text"
+            name="ownerKey"
+            placeholder="Owner Secret Key"
+            className="form-control mb-2"
+            onChange={handleChange}
+            required
+          />
+        )}
+
+        <button type="submit" className="btn btn-primary">Register</button>
+      </form>
+    </div>
+  );
+}
 
 export default Register;
