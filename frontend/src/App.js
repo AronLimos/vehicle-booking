@@ -13,14 +13,14 @@ function App() {
   const [role, setRole] = useState(null);
 
   useEffect(() => {
-    const token = localStorage.getItem('token'); // ✅ Ensure authentication
+    const token = localStorage.getItem('token'); //  Ensure authentication
     const storedRole = localStorage.getItem('role');
   
     if (token && storedRole) {
-      setRole(storedRole);  // ✅ Set role only if both token & role exist
+      setRole(storedRole);  //  Set role only if both token & role exist
       console.log("🔍 Retrieved Role from LocalStorage:", storedRole);
     } else {
-      setRole(null); // ✅ Prevents Logout from appearing incorrectly
+      setRole(null); //  Prevents Logout from appearing incorrectly
       console.warn("⚠️ No valid user session found!");
     }
   }, []);
@@ -57,7 +57,7 @@ function App() {
   ) : (
     <>
       <Link to={`/dashboard/${role}`} className="nav-links">Dashboard</Link>
-      <button onClick={handleLogout}>Logout</button> {/* ✅ Show Logout Only if Logged In */}
+      <button onClick={handleLogout}>Logout</button> {/*  Show Logout Only if Logged In */}
     </>
   )}
 </div>
