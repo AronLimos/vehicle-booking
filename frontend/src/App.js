@@ -9,6 +9,7 @@ import {
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import axios from "axios";
+import { Modal, Button } from "react-bootstrap";
 
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -120,6 +121,8 @@ function App() {
 
 const Home = () => {
   const [shops, setShops] = useState([]);
+  const [selectedShop, setSelectedShop] = useState(null);
+  const [showModal, setShowModal] = useState(false);
 
   useEffect(() => {
     const fetchShops = async () => {
@@ -132,6 +135,16 @@ const Home = () => {
     };
     fetchShops();
   }, []);
+
+  const handleOpenModal = (shop) => {
+    setSelectedShop(shop);
+    setShowModal(true);
+  };
+
+  const handleCloseModal = () => {
+    setShowModal(false);
+    setSelectedShop(null);
+  };
 
   return (
     <div>
@@ -152,42 +165,37 @@ const Home = () => {
             </div>
           </div>
         </div>
-
+        
         {/* Dynamic Shop Cards */}
         <div className="shop-container mt-4">
           {shops.length > 0 ? (
             shops.map((shop) => (
-              <div key={shop._id} className="shop-card col-md-4">
+              <div
+                key={shop._id}
+                className="shop-card col-md-4"
+                onClick={() => handleOpenModal(shop)}
+                style={{ cursor: "pointer" }}
+              >
+                {shop.image && (
+                  <img
+                    src={shop.image}
+                    alt={shop.name}
+                    className="shop-thumbnail"
+                    style={{
+                      width: "100%",
+                      height: "200px",
+                      objectFit: "cover",
+                      borderRadius: "10px",
+                      marginBottom: "10px",
+                    }}
+                  />
+                )}
                 <h3>
                   {shop.name} <span className="stars">★★★★★</span>
                 </h3>
                 <p>
                   <strong>Location:</strong> {shop.location}
                 </p>
-
-                <p>
-                  <strong>Services:</strong>
-                </p>
-                <ul>
-                  {shop.serviceOffered.map((service, idx) => (
-                    <li key={idx}>
-                      {service.name} - ${service.price}
-                    </li>
-                  ))}
-                </ul>
-
-                {shop.image && (
-                  <img
-                    src={shop.image}
-                    alt={shop.name}
-                    className="shop-image"
-                    style={{
-                      width: "100%",
-                      height: "150px",
-                      objectFit: "cover",
-                    }}
-                  />
-                )}
               </div>
             ))
           ) : (
@@ -202,6 +210,48 @@ const Home = () => {
       <div id="rating">
         <h2>Rating Section</h2>
       </div>
+
+      {/* Shop Modal */}
+      <Modal show={showModal} onHide={handleCloseModal} size="lg" centered>
+        <Modal.Header closeButton>
+          <Modal.Title>{selectedShop?.name}</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+          {selectedShop && (
+            <>
+              <p>
+                <strong>Location:</strong> {selectedShop.location}
+              </p>
+              <p>
+                <strong>Services Offered:</strong>
+              </p>
+              <ul>
+                {selectedShop.serviceOffered.map((service, idx) => (
+                  <li key={idx}>
+                    {service.name} - ${service.price}
+                  </li>
+                ))}
+              </ul>
+              {selectedShop.image && (
+                <img
+                  src={selectedShop.image}
+                  alt={selectedShop.name}
+                  style={{ width: "100%", height: "300px", objectFit: "cover" }}
+                />
+              )}
+              <hr />
+              <p>
+                <strong>Reviews:</strong> Coming Soon...
+              </p>
+            </>
+          )}
+        </Modal.Body>
+        <Modal.Footer>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Close
+          </Button>
+        </Modal.Footer>
+      </Modal>
     </div>
   );
 };
