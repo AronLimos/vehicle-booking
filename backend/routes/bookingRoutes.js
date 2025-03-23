@@ -4,16 +4,33 @@ const Booking = require('../models/Booking');
 
 const router = express.Router();
 
-//  Create a new booking
+// Create a new booking
 router.post('/', verifyToken, async (req, res) => {
     try {
-        const newBooking = new Booking(req.body);
-        await newBooking.save();
-        res.status(201).json(newBooking);
+      const { userID, shopID, service, dateTime } = req.body;
+
+      //Basic Validation
+      if (!userID || !shopID || !service || !dateTime) {
+        return res.status(400).json({ message: 'Missing required booking fields' });
+      }
+  
+      const newBooking = new Booking({
+        userID,
+        shopID,
+        service,
+        dateTime,
+        status: 'pending',         
+        paymentStatus: 'pending' 
+      });
+  
+      await newBooking.save();
+      res.status(201).json(newBooking);
     } catch (error) {
-        res.status(500).json({ message: 'Error creating booking' });
+      console.error('Booking Creation Error:', error);
+      res.status(500).json({ message: 'Error creating booking', error: error.message });
     }
-});
+  });
+  
 
 //  Get all bookings
 router.get('/', verifyToken, async (req, res) => {
@@ -48,21 +65,31 @@ router.put('/:id', verifyToken, async (req, res) => {
     }
 });
 
-//  Delete (Cancel) a booking
+// Cancel a booking (Customer, Admin, Owner)
 router.delete('/:id', verifyToken, async (req, res) => {
     try {
         const booking = await Booking.findById(req.params.id);
-        if (!booking) return res.status(404).json({ message: "Booking not found" });
 
-        // 🔹 Ensure only the owner of the booking or an admin can delete it
-        if (req.user.role !== 'admin' && booking.userID.toString() !== req.user.userId) {
-            return res.status(403).json({ message: "Forbidden: You can't cancel this booking" });
+        if (!booking) {
+            return res.status(404).json({ message: 'Booking not found' });
         }
 
-        await Booking.findByIdAndDelete(req.params.id);
-        res.json({ message: "Booking cancelled successfully" });
+        // Only allow if user is admin, owner, or the one who made the booking
+        if (
+            req.user.role !== 'admin' &&
+            req.user.role !== 'owner' &&
+            booking.userID.toString() !== req.user.userId
+        ) {
+            return res.status(403).json({ message: 'Unauthorized to cancel this booking' });
+        }
+
+        booking.status = 'canceled';
+        await booking.save();
+
+        res.json({ message: 'Booking canceled successfully', booking });
     } catch (error) {
-        res.status(500).json({ message: "Error cancelling booking" });
+        console.error('Cancel Booking Error:', error);
+        res.status(500).json({ message: 'Error cancelling booking' });
     }
 });
 
