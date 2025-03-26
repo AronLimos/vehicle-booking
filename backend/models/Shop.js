@@ -23,7 +23,11 @@ const shopSchema = new mongoose.Schema({
     type: mongoose.Schema.Types.ObjectId,
     ref: 'User',
     required: true
-  }
+  },
+  reviews: [{ 
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Review'
+  }]
 });
 
 module.exports = mongoose.model('Shop', shopSchema);

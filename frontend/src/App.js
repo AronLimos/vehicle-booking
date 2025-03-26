@@ -5,8 +5,6 @@ import {
   Route,
   Link,
   Navigate,
-  useParams,
-  useNavigate,
 } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
@@ -20,6 +18,7 @@ import CustomerDashboard from "./pages/CustomerDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import BookingPage from "./pages/BookingPage";
+import ReviewForm from "./components/ReviewForm"; 
 
 function App() {
   const [activeLink, setActiveLink] = useState("home");
@@ -86,20 +85,23 @@ function App() {
   );
 }
 
+/*  HOME COMPONENT */
 const Home = ({ role }) => {
   const [shops, setShops] = useState([]);
   const [selectedShop, setSelectedShop] = useState(null);
   const [showModal, setShowModal] = useState(false);
 
+  // Fetch shops from backend (includes avgRating and reviews)
+  const fetchShops = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/shops");
+      setShops(res.data);
+    } catch (err) {
+      console.error("Failed to fetch shops:", err);
+    }
+  };
+
   useEffect(() => {
-    const fetchShops = async () => {
-      try {
-        const res = await axios.get("http://localhost:5000/api/shops");
-        setShops(res.data);
-      } catch (err) {
-        console.error("Failed to fetch shops:", err);
-      }
-    };
     fetchShops();
   }, []);
 
@@ -115,12 +117,10 @@ const Home = ({ role }) => {
 
   return (
     <div>
-      {/* Hero Section */}
       <div id="home">
         <h2>CAR REPAIR AND MAINTENANCE SERVICE</h2>
       </div>
 
-      {/* Search & Shop Cards */}
       <div id="search">
         <h2>Search Section</h2>
         <div className="container">
@@ -135,7 +135,12 @@ const Home = ({ role }) => {
           {shops.length > 0 ? (
             shops.map((shop) => (
               <div key={shop._id} className="shop-card col-md-4" onClick={() => handleOpenModal(shop)}>
-                <h3>{shop.name} <span className="stars">★★★★★</span></h3>
+                <h3>
+                  {shop.name}
+                  <span className="stars">
+                    {"★".repeat(Math.round(shop.avgRating || 0))} ({shop.avgRating?.toFixed(1) || "0.0"})
+                  </span>
+                </h3>
                 <p><strong>Location:</strong> {shop.location}</p>
                 {shop.image && (
                   <img
@@ -157,11 +162,10 @@ const Home = ({ role }) => {
         </div>
       </div>
 
-      {/* Static sections */}
       <div id="book"><h2>Book Section</h2></div>
       <div id="rating"><h2>Rating Section</h2></div>
 
-      {/* Modal for detailed view */}
+      {/* Modal for Shop Details */}
       <Modal show={showModal} onHide={handleCloseModal} size="lg">
         <Modal.Header closeButton>
           <Modal.Title>{selectedShop?.name}</Modal.Title>
@@ -183,9 +187,20 @@ const Home = ({ role }) => {
                   style={{ width: "100%", objectFit: "cover", marginTop: "10px" }}
                 />
               )}
+              <ReviewForm shopId={selectedShop._id} onReviewSubmitted={fetchShops} />
               <hr />
               <h5>Reviews</h5>
-              <p>⭐ Feature coming soon...</p>
+              {selectedShop.reviews && selectedShop.reviews.length > 0 ? (
+                selectedShop.reviews.map((review, idx) => (
+                  <div key={idx} className="border p-2 mb-2">
+                    <strong>{review.rating}★</strong> - {review.comment}
+                    <br />
+                    <small>by {review.user?.email || "Anonymous"}</small>
+                  </div>
+                ))
+              ) : (
+                <p>No reviews yet.</p>
+              )}
             </>
           )}
         </Modal.Body>
