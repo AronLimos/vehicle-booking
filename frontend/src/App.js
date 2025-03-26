@@ -20,6 +20,7 @@ import CustomerDashboard from "./pages/CustomerDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import BookingPage from "./pages/BookingPage";
+import ReviewForm from "./components/ReviewForm";
 
 function App() {
   const [activeLink, setActiveLink] = useState("home");
@@ -51,19 +52,49 @@ function App() {
         <nav id="main-nav">
           <div className="navbar-title">AutoLocate</div>
           <div className="navbar-links">
-            <Link to="/" className={`nav-links ${activeLink === "home" ? "active" : ""}`} onClick={() => handleNavClick("home")}>Home</Link>
-            <Link to="/search" className={`nav-links ${activeLink === "search" ? "active" : ""}`} onClick={() => handleNavClick("search")}>Search</Link>
-            <Link to="/book" className={`nav-links ${activeLink === "book" ? "active" : ""}`} onClick={() => handleNavClick("book")}>Book</Link>
-            <Link to="/rating" className={`nav-links ${activeLink === "rating" ? "active" : ""}`} onClick={() => handleNavClick("rating")}>Rating</Link>
+            <Link
+              to="/"
+              className={`nav-links ${activeLink === "home" ? "active" : ""}`}
+              onClick={() => handleNavClick("home")}
+            >
+              Home
+            </Link>
+            <Link
+              to="/search"
+              className={`nav-links ${activeLink === "search" ? "active" : ""}`}
+              onClick={() => handleNavClick("search")}
+            >
+              Search
+            </Link>
+            <Link
+              to="/book"
+              className={`nav-links ${activeLink === "book" ? "active" : ""}`}
+              onClick={() => handleNavClick("book")}
+            >
+              Book
+            </Link>
+            <Link
+              to="/rating"
+              className={`nav-links ${activeLink === "rating" ? "active" : ""}`}
+              onClick={() => handleNavClick("rating")}
+            >
+              Rating
+            </Link>
 
             {!role ? (
               <>
-                <Link to="/login" className="nav-links">Login</Link>
-                <Link to="/register" className="nav-links">Register</Link>
+                <Link to="/login" className="nav-links">
+                  Login
+                </Link>
+                <Link to="/register" className="nav-links">
+                  Register
+                </Link>
               </>
             ) : (
               <>
-                <Link to={`/dashboard/${role}`} className="nav-links">Dashboard</Link>
+                <Link to={`/dashboard/${role}`} className="nav-links">
+                  Dashboard
+                </Link>
                 <button onClick={handleLogout}>Logout</button>
               </>
             )}
@@ -79,7 +110,16 @@ function App() {
           <Route path="/dashboard/customer" element={<CustomerDashboard />} />
           <Route path="/dashboard/owner" element={<OwnerDashboard />} />
           <Route path="/dashboard/admin" element={<AdminDashboard />} />
-          <Route path="/dashboard" element={role ? <Navigate to={`/dashboard/${role}`} /> : <Navigate to="/login" />} />
+          <Route
+            path="/dashboard"
+            element={
+              role ? (
+                <Navigate to={`/dashboard/${role}`} />
+              ) : (
+                <Navigate to="/login" />
+              )
+            }
+          />
         </Routes>
       </div>
     </Router>
@@ -90,6 +130,15 @@ const Home = ({ role }) => {
   const [shops, setShops] = useState([]);
   const [selectedShop, setSelectedShop] = useState(null);
   const [showModal, setShowModal] = useState(false);
+
+  const fetchShops = async () => {
+    try {
+      const res = await axios.get("http://localhost:5000/api/shops");
+      setShops(res.data);
+    } catch (err) {
+      console.error("Failed to fetch shops:", err);
+    }
+  };
 
   useEffect(() => {
     const fetchShops = async () => {
@@ -126,7 +175,11 @@ const Home = ({ role }) => {
         <div className="container">
           <div className="row">
             <div className="col-md-12">
-              <input type="text" id="myInput" placeholder="Search for AutoShop..." />
+              <input
+                type="text"
+                id="myInput"
+                placeholder="Search for AutoShop..."
+              />
             </div>
           </div>
         </div>
@@ -134,18 +187,38 @@ const Home = ({ role }) => {
         <div className="shop-container mt-4">
           {shops.length > 0 ? (
             shops.map((shop) => (
-              <div key={shop._id} className="shop-card col-md-4" onClick={() => handleOpenModal(shop)}>
-                <h3>{shop.name} <span className="stars">★★★★★</span></h3>
-                <p><strong>Location:</strong> {shop.location}</p>
+              <div
+                key={shop._id}
+                className="shop-card col-md-4"
+                onClick={() => handleOpenModal(shop)}
+              >
+                {/*Review star average*/ }
+                <h3>
+                  {shop.name}
+                  <span className="stars">
+                    {"★".repeat(Math.round(shop.avgRating || 0))} (
+                    {shop.avgRating?.toFixed(1) || "0.0"})
+                  </span>
+                </h3>
+                <p>
+                  <strong>Location:</strong> {shop.location}
+                </p>
                 {shop.image && (
                   <img
                     src={shop.image}
                     alt={shop.name}
-                    style={{ width: "100%", height: "150px", objectFit: "cover" }}
+                    style={{
+                      width: "100%",
+                      height: "150px",
+                      objectFit: "cover",
+                    }}
                   />
                 )}
                 {role === "customer" && (
-                  <Link to={`/book/${shop._id}`} className="btn btn-sm btn-success mt-2">
+                  <Link
+                    to={`/book/${shop._id}`}
+                    className="btn btn-sm btn-success mt-2"
+                  >
                     Book Now
                   </Link>
                 )}
@@ -158,8 +231,12 @@ const Home = ({ role }) => {
       </div>
 
       {/* Static sections */}
-      <div id="book"><h2>Book Section</h2></div>
-      <div id="rating"><h2>Rating Section</h2></div>
+      <div id="book">
+        <h2>Book Section</h2>
+      </div>
+      <div id="rating">
+        <h2>Rating Section</h2>
+      </div>
 
       {/* Modal for detailed view */}
       <Modal show={showModal} onHide={handleCloseModal} size="lg">
@@ -169,28 +246,55 @@ const Home = ({ role }) => {
         <Modal.Body>
           {selectedShop && (
             <>
-              <p><strong>Location:</strong> {selectedShop.location}</p>
-              <p><strong>Services:</strong></p>
+              <p>
+                <strong>Location:</strong> {selectedShop.location}
+              </p>
+              <p>
+                <strong>Services:</strong>
+              </p>
               <ul>
                 {selectedShop.serviceOffered.map((s, idx) => (
-                  <li key={idx}>{s.name} - ${s.price}</li>
+                  <li key={idx}>
+                    {s.name} - ${s.price}
+                  </li>
                 ))}
               </ul>
               {selectedShop.image && (
                 <img
                   src={selectedShop.image}
                   alt="Shop"
-                  style={{ width: "100%", objectFit: "cover", marginTop: "10px" }}
+                  style={{
+                    width: "100%",
+                    objectFit: "cover",
+                    marginTop: "10px",
+                  }}
                 />
               )}
+              {/*Review Form*/ }
+              <ReviewForm
+                shopId={selectedShop._id}
+                onReviewSubmit={fetchShops}
+              />
               <hr />
               <h5>Reviews</h5>
-              <p>⭐ Feature coming soon...</p>
+              {selectedShop.reviews && selectedShop.reviews.length > 0 ? (
+                selectedShop.reviews.map((review, idx) => (
+                  <div key={idx} className="border p-2 mb-2">
+                    <strong>{review.rating}★</strong> - {review.comment}
+                    <br />
+                    <small>by {review.user?.firstName || "Anonymous"}</small>
+                  </div>
+                ))
+              ) : (
+                <p>No reviews yet.</p>
+              )}
             </>
           )}
         </Modal.Body>
         <Modal.Footer>
-          <Button variant="secondary" onClick={handleCloseModal}>Close</Button>
+          <Button variant="secondary" onClick={handleCloseModal}>
+            Close
+          </Button>
         </Modal.Footer>
       </Modal>
     </div>
