@@ -1,7 +1,7 @@
 const express = require('express');
 const Shop = require('../models/Shop');
 const { verifyToken, authorizeRoles } = require('../middleware/authMiddleware');
-
+const Review = require('../models/Review');
 const router = express.Router();
 
 //  Create a new shop (Admin or Owner only)
@@ -22,16 +22,6 @@ router.post('/', verifyToken, authorizeRoles('owner', 'admin'), async (req, res)
     } catch (error) {
         console.error('Shop creation error:', error);
         res.status(500).json({ message: 'Error creating shop' });
-    }
-});
-
-//  Get all shops
-router.get('/', async (req, res) => {
-    try {
-        const shops = await Shop.find();
-        res.json(shops);
-    } catch (error) {
-        res.status(500).json({ message: "Error fetching shops" });
     }
 });
 
@@ -75,5 +65,32 @@ router.delete('/:id', verifyToken, authorizeRoles('admin'), async (req, res) => 
         res.status(500).json({ message: "Error deleting shop" });
     }
 });
+
+// Get all shops with average rating and reviews
+router.get('/', async (req, res) => {
+    try {
+      const shops = await Shop.find();
+  
+      const shopData = await Promise.all(
+        shops.map(async (shop) => {
+          // Fetch reviews for each shop
+          const reviews = await Review.find({ shopID: shop._id }).populate('userID', 'email');
+          const avgRating =
+            reviews.reduce((sum, r) => sum + r.rating, 0) / (reviews.length || 1);
+  
+          return {
+            ...shop.toObject(),
+            reviews,
+            avgRating: parseFloat(avgRating.toFixed(1)),
+          };
+        })
+      );
+  
+      res.json(shopData);
+    } catch (error) {
+      console.error("Error fetching shops with reviews:", error);
+      res.status(500).json({ message: "Error fetching shops" });
+    }
+  });  
 
 module.exports = router;

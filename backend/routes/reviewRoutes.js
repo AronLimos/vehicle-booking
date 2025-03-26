@@ -85,4 +85,21 @@ router.delete('/:id', verifyToken, async (req, res) => {
   }
 });
 
+// GET average rating for a specific shop
+router.get('/average/:shopID', async (req, res) => {
+  try {
+    const shopID = req.params.shopID;
+    const result = await Review.aggregate([
+      { $match: { shopID: require('mongoose').Types.ObjectId(shopID) } },
+      { $group: { _id: "$shopID", averageRating: { $avg: "$rating" } } }
+    ]);
+
+    const avg = result[0]?.averageRating || 0;
+    res.json({ averageRating: avg });
+  } catch (err) {
+    console.error("Error calculating average rating:", err);
+    res.status(500).json({ message: "Error getting average rating" });
+  }
+});
+
 module.exports = router;

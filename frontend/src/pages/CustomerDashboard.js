@@ -90,6 +90,7 @@ function CustomerDashboard() {
           {b.status !== "canceled" && (
             <button
               className="btn btn-danger"
+              style={{ width: "auto", maxWidth: "200px", padding: "4px 8px" }}
               onClick={() => cancelBooking(b._id)}
             >
               Cancel Booking
