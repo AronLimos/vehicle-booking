@@ -18,7 +18,7 @@ import CustomerDashboard from "./pages/CustomerDashboard";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import AdminDashboard from "./pages/AdminDashboard";
 import BookingPage from "./pages/BookingPage";
-import ReviewForm from "./components/ReviewForm"; 
+import ReviewForm from "./components/ReviewForm";
 
 function App() {
   const [activeLink, setActiveLink] = useState("home");
@@ -51,10 +51,6 @@ function App() {
           <div className="navbar-title">AutoLocate</div>
           <div className="navbar-links">
             <Link to="/" className={`nav-links ${activeLink === "home" ? "active" : ""}`} onClick={() => handleNavClick("home")}>Home</Link>
-            <Link to="/search" className={`nav-links ${activeLink === "search" ? "active" : ""}`} onClick={() => handleNavClick("search")}>Search</Link>
-            <Link to="/book" className={`nav-links ${activeLink === "book" ? "active" : ""}`} onClick={() => handleNavClick("book")}>Book</Link>
-            <Link to="/rating" className={`nav-links ${activeLink === "rating" ? "active" : ""}`} onClick={() => handleNavClick("rating")}>Rating</Link>
-
             {!role ? (
               <>
                 <Link to="/login" className="nav-links">Login</Link>
@@ -90,8 +86,9 @@ const Home = ({ role }) => {
   const [shops, setShops] = useState([]);
   const [selectedShop, setSelectedShop] = useState(null);
   const [showModal, setShowModal] = useState(false);
+  const [searchTerm, setSearchTerm] = useState("");
+  const [serviceFilter, setServiceFilter] = useState("");
 
-  // Fetch shops from backend (includes avgRating and reviews)
   const fetchShops = async () => {
     try {
       const res = await axios.get("http://localhost:5000/api/shops");
@@ -115,6 +112,17 @@ const Home = ({ role }) => {
     setShowModal(false);
   };
 
+  // 🔍 Filter shops based on search text and service type
+  const filteredShops = shops.filter((shop) => {
+    const matchesText =
+      shop.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      shop.location.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesService =
+      !serviceFilter ||
+      shop.serviceOffered.some((s) => s.name === serviceFilter);
+    return matchesText && matchesService;
+  });
+
   return (
     <div>
       <div id="home">
@@ -124,16 +132,37 @@ const Home = ({ role }) => {
       <div id="search">
         <h2>Search Section</h2>
         <div className="container">
-          <div className="row">
-            <div className="col-md-12">
-              <input type="text" id="myInput" placeholder="Search for AutoShop..." />
+          <div className="row mb-3">
+            <div className="col-md-6">
+              <input
+                type="text"
+                placeholder="Search by shop name or location..."
+                className="form-control"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+            </div>
+            <div className="col-md-6">
+              <select
+                className="form-control"
+                value={serviceFilter}
+                onChange={(e) => setServiceFilter(e.target.value)}
+              >
+                <option value="">All Services</option>
+                {/* Get all services from shops */}
+                {[...new Set(
+                  shops.flatMap((shop) => shop.serviceOffered.map((s) => s.name))
+                )].map((service, idx) => (
+                  <option key={idx} value={service}>{service}</option>
+                ))}
+              </select>
             </div>
           </div>
         </div>
 
         <div className="shop-container mt-4">
-          {shops.length > 0 ? (
-            shops.map((shop) => (
+          {filteredShops.length > 0 ? (
+            filteredShops.map((shop) => (
               <div key={shop._id} className="shop-card col-md-4" onClick={() => handleOpenModal(shop)}>
                 <h3>
                   {shop.name}
@@ -161,9 +190,6 @@ const Home = ({ role }) => {
           )}
         </div>
       </div>
-
-      <div id="book"><h2>Book Section</h2></div>
-      <div id="rating"><h2>Rating Section</h2></div>
 
       {/* Modal for Shop Details */}
       <Modal show={showModal} onHide={handleCloseModal} size="lg">
