@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { BrowserRouter as Router, Routes, Route, Link, Navigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "./App.css";
 import axios from "axios";
@@ -15,19 +16,42 @@ import BookingPage from "./pages/BookingPage";
 import ReviewForm from "./components/ReviewForm";
 
 const Navbar = ({ role, handleLogout }) => {
+  const location = useLocation(); // Get the current route
+
   return (
     <nav id="main-nav">
       <div className="navbar-title">AutoLocate</div>
       <div className="navbar-links">
-        <Link to="/" className="nav-links">Home</Link>
+        <Link
+          to="/"
+          className={`nav-links ${location.pathname === "/" ? "active" : ""}`}
+        >
+          Home
+        </Link>
+
         {!role ? (
           <>
-            <Link to="/login" className="nav-links">Login</Link>
-            <Link to="/register" className="nav-links">Register</Link>
+            <Link
+              to="/login"
+              className={`nav-links ${location.pathname === "/login" ? "active" : ""}`}
+            >
+              Login
+            </Link>
+            <Link
+              to="/register"
+              className={`nav-links ${location.pathname === "/register" ? "active" : ""}`}
+            >
+              Register
+            </Link>
           </>
         ) : (
           <>
-            <Link to={`/dashboard/${role}`} className="nav-links">Dashboard</Link>
+            <Link
+              to={`/dashboard/${role}`}
+              className={`nav-links ${location.pathname.startsWith("/dashboard") ? "active" : ""}`}
+            >
+              Dashboard
+            </Link>
             <button onClick={handleLogout}>Logout</button>
           </>
         )}
@@ -137,6 +161,9 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/book/:shopId" element={<BookingPage />} />
+        <Route path="/dashboard/customer" element={<CustomerDashboard />} />
+        <Route path="/dashboard/owner" element={<OwnerDashboard />} />
+        <Route path="/dashboard/admin" element={<AdminDashboard />} />
         <Route path="/dashboard" element={role ? <Navigate to={`/dashboard/${role}`} /> : <Navigate to="/login" />} />
       </Routes>
     </Router>
