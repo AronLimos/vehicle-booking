@@ -51,10 +51,6 @@ function App() {
           <div className="navbar-title">AutoLocate</div>
           <div className="navbar-links">
             <Link to="/" className={`nav-links ${activeLink === "home" ? "active" : ""}`} onClick={() => handleNavClick("home")}>Home</Link>
-            <Link to="/search" className={`nav-links ${activeLink === "search" ? "active" : ""}`} onClick={() => handleNavClick("search")}>Search</Link>
-            <Link to="/book" className={`nav-links ${activeLink === "book" ? "active" : ""}`} onClick={() => handleNavClick("book")}>Book</Link>
-            <Link to="/rating" className={`nav-links ${activeLink === "rating" ? "active" : ""}`} onClick={() => handleNavClick("rating")}>Rating</Link>
-
             {!role ? (
               <>
                 <Link to="/login" className="nav-links">Login</Link>
@@ -161,9 +157,6 @@ const Home = ({ role }) => {
           )}
         </div>
       </div>
-
-      <div id="book"><h2>Book Section</h2></div>
-      <div id="rating"><h2>Rating Section</h2></div>
 
       {/* Modal for Shop Details */}
       <Modal show={showModal} onHide={handleCloseModal} size="lg">
