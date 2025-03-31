@@ -118,7 +118,7 @@ function CustomerDashboard() {
               style={{ width: "auto", maxWidth: "100px", padding: "4px 8px" }}
               onClick={() => deleteReview(review._id)}
             >
-              Delete 
+              Delete
             </button>
           </div>
         ))
