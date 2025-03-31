@@ -7,30 +7,30 @@ const router = express.Router();
 // Create a new booking
 router.post('/', verifyToken, async (req, res) => {
     try {
-      const { userID, shopID, service, dateTime } = req.body;
+        const { userID, shopID, service, dateTime } = req.body;
 
-      //Basic Validation
-      if (!userID || !shopID || !service || !dateTime) {
-        return res.status(400).json({ message: 'Missing required booking fields' });
-      }
-  
-      const newBooking = new Booking({
-        userID,
-        shopID,
-        service,
-        dateTime,
-        status: 'pending',         
-        paymentStatus: 'pending' 
-      });
-  
-      await newBooking.save();
-      res.status(201).json(newBooking);
+        //Basic Validation
+        if (!userID || !shopID || !service || !dateTime) {
+            return res.status(400).json({ message: 'Missing required booking fields' });
+        }
+
+        const newBooking = new Booking({
+            userID,
+            shopID,
+            service,
+            dateTime,
+            status: 'pending',
+            paymentStatus: 'pending'
+        });
+
+        await newBooking.save();
+        res.status(201).json(newBooking);
     } catch (error) {
-      console.error('Booking Creation Error:', error);
-      res.status(500).json({ message: 'Error creating booking', error: error.message });
+        console.error('Booking Creation Error:', error);
+        res.status(500).json({ message: 'Error creating booking', error: error.message });
     }
-  });
-  
+});
+
 
 //  Get all bookings
 router.get('/', verifyToken, async (req, res) => {
@@ -66,6 +66,7 @@ router.put('/:id', verifyToken, async (req, res) => {
 });
 
 // Cancel a booking (Customer, Admin, Owner)
+// Cancel a booking (Customer, Admin, Owner)
 router.delete('/:id', verifyToken, async (req, res) => {
     try {
         const booking = await Booking.findById(req.params.id);
@@ -83,13 +84,13 @@ router.delete('/:id', verifyToken, async (req, res) => {
             return res.status(403).json({ message: 'Unauthorized to cancel this booking' });
         }
 
-        booking.status = 'canceled';
-        await booking.save();
+        // Delete the booking
+        await booking.remove();
 
-        res.json({ message: 'Booking canceled successfully', booking });
+        res.json({ message: 'Booking canceled and deleted successfully' });
     } catch (error) {
-        console.error('Cancel Booking Error:', error);
-        res.status(500).json({ message: 'Error cancelling booking' });
+        console.error('Cancel and Delete Booking Error:', error);
+        res.status(500).json({ message: 'Error canceling and deleting booking' });
     }
 });
 
