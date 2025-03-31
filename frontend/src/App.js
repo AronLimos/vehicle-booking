@@ -50,9 +50,16 @@ const Navbar = ({ role, handleLogout }) => {
               to={`/dashboard/${role}`}
               className={`nav-links ${location.pathname.startsWith("/dashboard") ? "active" : ""}`}
             >
-              Dashboard
+              Profile
             </Link>
-            <button onClick={handleLogout}>Logout</button>
+
+            <Link
+              to="/login"
+              className="nav-links"
+              onClick={handleLogout}
+            >
+              Logout
+            </Link>
           </>
         )}
       </div>
