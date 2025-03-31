@@ -14,23 +14,23 @@ function OwnerDashboard() {
   const [bookings, setBookings] = useState([]);
   const [view, setView] = useState("shops"); // 'shops' or 'bookings'
   const [message, setMessage] = useState("");
+  const [bookings, setBookings] = useState([]);
 
   const token = localStorage.getItem("token");
   const decoded = token ? JSON.parse(atob(token.split(".")[1])) : {};
   const ownerID = decoded.userId;
 
-  // Fetch shops owned by the current user
-  const fetchMyShops = async () => {
-    try {
-      const res = await axios.get("http://localhost:5000/api/shops", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      const myShops = res.data.filter(shop => shop.ownerID === ownerID);
-      setShops(myShops);
-    } catch (err) {
-      console.error("Error fetching shops:", err);
-    }
-  };
+        const res = await axios.get("http://localhost:5000/api/shops", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        // Filter shops that belong to the logged-in owner
+        const myShops = res.data.filter(shop => shop.ownerID === ownerID);
+        setShops(myShops);
+      } catch (err) {
+        console.error("Error fetching shops:", err);
+      }
+    };
 
   // Fetch bookings for the owner's shops
   const fetchBookings = async () => {
@@ -51,6 +51,39 @@ function OwnerDashboard() {
   useEffect(() => {
     fetchMyShops();
   }, []);
+
+  useEffect(() => {
+    const fetchBookings = async () => {
+      try {
+        if (shops.length === 0) return; // Ensure shops are loaded first
+
+        const token = localStorage.getItem("token");
+        const resBookings = await axios.get("http://localhost:5000/api/bookings", {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        console.log("All bookings:", resBookings.data); // Debugging log
+
+        // Convert shop IDs to string for comparison
+        const shopIds = shops.map(shop => shop._id.toString());
+        console.log("Owner's shop IDs:", shopIds); // Debugging log
+
+        const ownerBookings = resBookings.data.filter(b => {
+          console.log("Booking Shop ID:", b.shopID, "Type:", typeof b.shopID);
+          console.log("Shop ID Array:", shopIds, "Type of first ID:", typeof shopIds[0]);
+          return shopIds.includes(String(b.shopID._id)) // Convert shopID to string
+
+        });
+
+        console.log("Filtered bookings:", ownerBookings); // Debugging log
+        setBookings(ownerBookings);
+      } catch (err) {
+        console.error("Error fetching bookings:", err);
+      }
+    };
+
+    fetchBookings();
+  }, [shops]); // Runs whenever `shops` updates
 
   useEffect(() => {
     if (view === "bookings" && shops.length > 0) {
@@ -100,58 +133,25 @@ function OwnerDashboard() {
     }
   };
 
-  const cancelBooking = async (bookingId) => {
-    try {
-      await axios.delete(`http://localhost:5000/api/bookings/${bookingId}`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      setBookings(prev => prev.map(b =>
-        b._id === bookingId ? { ...b, status: "canceled" } : b
-      ));
-    } catch (err) {
-      console.error("Cancel failed:", err);
-    }
-  };
-
   return (
     <div className="container mt-4">
       <h2>Owner Dashboard</h2>
       {message && <div className="alert alert-info">{message}</div>}
 
-      {/* Tab Controls */}
-      <div className="mb-4">
-        <button
-          className={`btn me-2 ${view === "shops" ? "btn-primary" : "btn-outline-primary"}`}
-          onClick={() => setView("shops")}
-        >
-          My Shops
-        </button>
-        <button
-          className={`btn ${view === "bookings" ? "btn-primary" : "btn-outline-primary"}`}
-          onClick={() => setView("bookings")}
-        >
-          Manage Bookings
-        </button>
-      </div>
-
-      {/* === SHOP MANAGEMENT === */}
-      {view === "shops" && (
-        <>
-          {shops.map((shop, idx) => (
-            <div key={shop._id} className="card p-3 mb-4">
-              <label>Name:</label>
-              <input
-                className="form-control mb-2"
-                value={shop.name}
-                onChange={(e) => handleInputChange(idx, "name", e.target.value)}
-              />
-
-              <label>Location:</label>
-              <input
-                className="form-control mb-2"
-                value={shop.location}
-                onChange={(e) => handleInputChange(idx, "location", e.target.value)}
-              />
+      {shops.map((shop, idx) => (
+        <div key={shop._id} className="card p-3 mb-4">
+          <label>Name:</label>
+          <input
+            className="form-control mb-2"
+            value={shop.name}
+            onChange={(e) => handleInputChange(idx, "name", e.target.value)}
+          />
+          <label>Location:</label>
+          <input
+            className="form-control mb-2"
+            value={shop.location}
+            onChange={(e) => handleInputChange(idx, "location", e.target.value)}
+          />
 
               <h5>Services Offered:</h5>
               {SERVICE_OPTIONS.map(service => {
@@ -180,45 +180,20 @@ function OwnerDashboard() {
                 );
               })}
 
-              <button
-                className="btn btn-primary mt-3"
-                onClick={() =>
-                  updateShop(shop._id, {
-                    name: shop.name,
-                    location: shop.location,
-                    serviceOffered: shop.serviceOffered,
-                  })
-                }
-              >
-                Save Changes
-              </button>
-            </div>
-          ))}
-        </>
-      )}
-
-      {/* === BOOKING MANAGEMENT === */}
-      {view === "bookings" && (
-        <>
-          <h3>Shop Bookings</h3>
-          {bookings.map((booking) => (
-            <div key={booking._id} className="card mb-3 p-3">
-              <p><strong>Shop:</strong> {booking.shopID.name}</p>
-              <p><strong>Service:</strong> {booking.service}</p>
-              <p><strong>Date:</strong> {new Date(booking.dateTime).toLocaleString()}</p>
-              <p><strong>Status:</strong> {booking.status}</p>
-              {booking.status !== "canceled" && (
-                <button
-                  className="btn btn-danger"
-                  onClick={() => cancelBooking(booking._id)}
-                >
-                  Cancel Booking
-                </button>
-              )}
-            </div>
-          ))}
-        </>
-      )}
+          <button
+            className="btn btn-primary mt-3"
+            onClick={() =>
+              updateShop(shop._id, {
+                name: shop.name,
+                location: shop.location,
+                serviceOffered: shop.serviceOffered,
+              })
+            }
+          >
+            Save Changes
+          </button>
+        </div>
+      ))}
     </div>
   );
 }
